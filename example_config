@@ -1,0 +1,40 @@
+#BACKUP config NAME:
+#Name of Backup file
+#Source
+#Destination
+#Program
+#arg list
+#Mic behavior
+
+#Program config
+
+
+etc:/etc:/var/bash_backup/etc.tar:tar:xf
+bin:/
+\
+\
+
+
+bash_backup etc
+
+
+tar:tar ${ARGS} ${DEST}${SRC}
+dump:dump xxx    ..
+
+tar:
+- Initial : tar cPf "$HOME/Example_backup" "$HOME/important_file/"
+- ONGOING : tar uPf "Example_backup" "$HOME/important_file/"
+- RECOVERY: tar xfpP "$HOME/Example_backup"
+- SHOW    : tar tPf "$HOME/Example_backup"
+
+rsync
+- Initial :
+- ONGOING :
+- RECOVERY:
+- SHOW    :
+
+zip/unzips
+- Initial : zip -rq Example_backup important_file/
+- ONGOING : zip -uq Example_backup.zip
+- RECOVERY: unzip  $HOME/Example_backup.zip  #does not restore to absolute location (add option to choose directory to cd into before running and umask (for file permission))
+- SHOW    : unzip -Z Example_backup.zip 
