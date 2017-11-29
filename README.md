@@ -1,4 +1,4 @@
-# Custom-backup - configurable backup wrapper 
+# custom_backup - configurable backup wrapper
 
 ## Table of Contents
 1. [Overview](#Overview)
