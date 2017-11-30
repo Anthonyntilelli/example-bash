@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+################################################################################
+#: Title       : Custom_backup
+#: Date        : 2017-Nov-30
+#: Author      : Anthony Tilelli
+#: Version     : .01
+#: Description : Runs backups defined in configuration file
+#: Options     : PENDING
+################################################################################
+
+# strict mode (http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+set -euo pipefail
+#readonly ORIGINAL_IFS="$IFS"
+#IFS=$'\n\t'
+
+#CONSTANTS
+#readonly GLOBAL_BACKUP_CONFIG="tar_local.test"
+readonly GLOBAL_BACKUP_CONFIG="backup.config"
+
+# FUNCTIONS
+fail() {
+# Output error-message and force quits script
+
+  local -r ERRORCODE=${1}
+  local -r ERROR_MESSAGE="${2}"
+  echo "ERROR: $ERROR_MESSAGE" >&2
+  exit "$ERRORCODE"
+}
+load_config() {
+# Reads in config entry and convets to variables
+  local -r Entry_NAME=${1}
+  local -r ACTION=${2}
+  local -r CONFIG_LINE=$(grep "^$Entry_NAME:.*$ACTION" "$GLOBAL_BACKUP_CONFIG")
+  local -r NUM_OF_ENTRIES=$(grep "^$Entry_NAME:.*$ACTION" "$GLOBAL_BACKUP_CONFIG" | wc -l )
+  echo "$CONFIG_LINE"
+  echo "$NUM_OF_ENTRIES"
+
+  if [[ -z "$CONFIG_LINE" ]] ; then
+    fail 3 "No \"$Entry_NAME:$ACTION\" found in $GLOBAL_BACKUP_CONFIG"
+  fi
+  if [[ $NUM_OF_ENTRIES != "1" ]] ; then
+    fail 4 "Multple entries found in $GLOBAL_BACKUP_CONFIG"
+  fi
+
+
+}
+
+#testing
+load_config $1 $2
+exit 0
