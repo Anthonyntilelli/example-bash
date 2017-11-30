@@ -1,17 +1,17 @@
 tar:
-- Initial : tar cPf "$HOME/Example_backup" "$HOME/important_files/"
-- ONGOING : tar uPf "Example_backup" "$HOME/important_files/"
+- INITIAL : tar cPf "$HOME/Example_backup" "$HOME/important_files/"
+- ONGOING : tar uPf "$HOME/Example_backup" "$HOME/important_files/"
 - RESTORE : tar xfpP "$HOME/Example_backup"
 - SHOW    : tar tPf "$HOME/Example_backup"
 
 rsync
-- Initial : sudo rsync -azq "$HOME/important_files/" "$HOME/Example_backup/"
-- ONGOING : #same as intial (incremental by default)
+- INITIAL : sudo rsync -azq "$HOME/important_files/" "$HOME/Example_backup/"
+- ONGOING : #same as INITIAL (incremental by default)
 - RESTORE : sudo rsync -azq "$HOME/Example_backup/" "$HOME/important_files/"
 - SHOW    : ls -l "$HOME/Example_backup"
 
 zip/unzips
-- Initial : zip -rq "$HOME/Example_backup.zip" "$HOME/important_files/"
+- INITIAL : zip -rq "$HOME/Example_backup.zip" "$HOME/important_files/"
 - ONGOING : zip -uq "$HOME/Example_backup.zip"
 - RESTORE : unzip -Xqo "$HOME/Example_backup.zip" #does not restore to absolute location (need to `cd /`)
 - SHOW    : unzip -Z "$HOME/Example_backup.zip"
