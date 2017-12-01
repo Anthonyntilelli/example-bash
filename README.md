@@ -18,13 +18,13 @@
 ## Exit status:
 <a name="Exit_status"></a>
 
-    0   Success
-    1   General Failure (varied message)
-    3   No "$Entry_NAME:$ACTION" found in backup.config
-    4   Multple entries found in $GLOBAL_BACKUP_CONFIG
+    0  Success
+    1  General Failure (varied message)
+    3  $NUM_OF_ENTRIES entries found in $GLOBAL_BACKUP_CONFIG for "$Entry_NAME:$ACTION"
+    4  Entry "$CONFIG_LINE" is incorrect
+
 # old
 
-  4   "Requires shell parameters to run"
   5   Error code for backup functions (varied message)
   6   "User configuration file is not owned specified user [uid]"
   7   "Unable to use file:\"$CONFIG\". (Does files exist and is it readable?)"

@@ -13,38 +13,84 @@ set -euo pipefail
 #readonly ORIGINAL_IFS="$IFS"
 #IFS=$'\n\t'
 
-#CONSTANTS
-#readonly GLOBAL_BACKUP_CONFIG="tar_local.test"
-readonly GLOBAL_BACKUP_CONFIG="backup.config"
+# CONSTANTS
+#readonly GL_BACKUP_CONFIG="testing/tar_local.test"
+readonly GL_BACKUP_CONFIG="backup.config"
+
+#GLOBAL VARIABLES
+Gl_cfg_BID="${1}"
+Gl_cfg_Action="${2}"
+Gl_cfg_Program=""
+Gl_cfg_Arguments=""
+Gl_cfg_Source=""
+Gl_cfg_Backup=""
+Gl_cfg_cd=""
+Gl_cfg_UMASK=""
 
 # FUNCTIONS
-fail() {
-# Output error-message and force quits script
-
+function fail() {
+# Outputs error-message and force-quits script
   local -r ERRORCODE=${1}
   local -r ERROR_MESSAGE="${2}"
-  echo "ERROR: $ERROR_MESSAGE" >&2
+  printf "%s\\n" "ERROR: $ERROR_MESSAGE" >&2
   exit "$ERRORCODE"
 }
-load_config() {
-# Reads in config entry and convets to variables
-  local -r Entry_NAME=${1}
-  local -r ACTION=${2}
-  local -r CONFIG_LINE=$(grep "^$Entry_NAME:.*$ACTION" "$GLOBAL_BACKUP_CONFIG")
-  local -r NUM_OF_ENTRIES=$(grep "^$Entry_NAME:.*$ACTION" "$GLOBAL_BACKUP_CONFIG" | wc -l )
-  echo "$CONFIG_LINE"
-  echo "$NUM_OF_ENTRIES"
+function load_config() {
+# Reads in config entry and convets to Global variables
 
-  if [[ -z "$CONFIG_LINE" ]] ; then
-    fail 3 "No \"$Entry_NAME:$ACTION\" found in $GLOBAL_BACKUP_CONFIG"
+# Reads Global variables
+# - Gl_cfg_BID
+# - Gl_cfg_Action
+# - GL_BACKUP_CONFIG
+
+# Modifies Global variables:
+# - Gl_cfg_Program
+# - Gl_cfg_Arguments
+# - Gl_cfg_Source
+# - Gl_cfg_Backup
+# - Gl_cfg_cd
+# - Gl_cfg_UMASK
+
+  local -r CONFIG_LINE=$(grep "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG")
+  local -r NUM_OF_ENTRIES=$(grep -c "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG")
+  local -r NUM_OF_COLUMNS=$(printf "%s\\n" "$CONFIG_LINE" | sed 's/[^:]//g' | wc -c)
+
+  if (( NUM_OF_ENTRIES == 1 )); then
+    if (( NUM_OF_COLUMNS == 8 )); then
+      Gl_cfg_Program=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 3 -d ':')
+      Gl_cfg_Arguments=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 4 -d ':')
+      Gl_cfg_Source=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 5 -d ':')
+      Gl_cfg_Backup=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 6 -d ':')
+      Gl_cfg_cd=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 7 -d ':')
+      Gl_cfg_UMASK=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 8 -d ':')
+    else
+      fail 4 "Entry \"$CONFIG_LINE\" is incorrect"
+    fi
+  else
+    fail 3 "$NUM_OF_ENTRIES entries found in $GL_BACKUP_CONFIG for \"$Gl_cfg_BID:$Gl_cfg_Action\""
   fi
-  if [[ $NUM_OF_ENTRIES != "1" ]] ; then
-    fail 4 "Multple entries found in $GLOBAL_BACKUP_CONFIG"
-  fi
+
+  return 0
+}
+function print_globals() {
+
+#File
+printf "%s\\n"  "GL_BACKUP_CONFIG: $GL_BACKUP_CONFIG"
+
+#Configs
+printf "%s\\n"  "Gl_cfg_BID: $Gl_cfg_BID"
+printf "%s\\n" "Gl_cfg_Action: $Gl_cfg_Action"
+printf "%s\\n" "Gl_cfg_Program: $Gl_cfg_Program"
+printf "%s\\n" "Gl_cfg_Arguments: $Gl_cfg_Arguments"
+printf "%s\\n" "Gl_cfg_Source: $Gl_cfg_Source"
+printf "%s\\n" "Gl_cfg_Backup: $Gl_cfg_Backup"
+printf "%s\\n" "Gl_cfg_cd: $Gl_cfg_cd"
+printf "%s\\n" "Gl_cfg_UMASK: $Gl_cfg_UMASK"
 
 
 }
-
 #testing
-load_config $1 $2
-exit 0
+load_config
+print_globals
+
+exit 99
