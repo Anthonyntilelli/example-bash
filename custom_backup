@@ -36,7 +36,7 @@ function fail() {
   exit "$ERRORCODE"
 }
 function load_config() {
-# Reads in config entry and convets to Global variables
+# Reads in backup config entry and convets to global variables
 
 # Reads Global variables
 # - Gl_cfg_BID
@@ -51,18 +51,19 @@ function load_config() {
 # - Gl_cfg_cd
 # - Gl_cfg_UMASK
 
-  local -r CONFIG_LINE=$(grep "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG")
+  local -r CONFIG_LINE=$(grep "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG" | sed 's/#.*//g')
+  #Sed - removes comments from end of lines
   local -r NUM_OF_ENTRIES=$(grep -c "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG")
   local -r NUM_OF_COLUMNS=$(printf "%s\\n" "$CONFIG_LINE" | sed 's/[^:]//g' | wc -c)
 
   if (( NUM_OF_ENTRIES == 1 )); then
     if (( NUM_OF_COLUMNS == 8 )); then
-      Gl_cfg_Program=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 3 -d ':')
+      Gl_cfg_Program=$(printf "%s\\n" "$CONFIG_LINE"   | cut -f 3 -d ':')
       Gl_cfg_Arguments=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 4 -d ':')
-      Gl_cfg_Source=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 5 -d ':')
-      Gl_cfg_Backup=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 6 -d ':')
-      Gl_cfg_cd=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 7 -d ':')
-      Gl_cfg_UMASK=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 8 -d ':')
+      Gl_cfg_Source=$(printf "%s\\n" "$CONFIG_LINE"    | cut -f 5 -d ':')
+      Gl_cfg_Backup=$(printf "%s\\n" "$CONFIG_LINE"    | cut -f 6 -d ':')
+      Gl_cfg_cd=$(printf "%s\\n" "$CONFIG_LINE"        | cut -f 7 -d ':')
+      Gl_cfg_UMASK=$(printf "%s\\n" "$CONFIG_LINE"     | cut -f 8 -d ':')
     else
       fail 4 "Entry \"$CONFIG_LINE\" is incorrect"
     fi
@@ -72,13 +73,16 @@ function load_config() {
 
   return 0
 }
-function print_globals() {
 
+function print_globals() {
 #File
-printf "%s\\n"  "GL_BACKUP_CONFIG: $GL_BACKUP_CONFIG"
+printf "%s\\n" "FILES USED"
+printf "%s\\n" "GL_BACKUP_CONFIG: $GL_BACKUP_CONFIG"
+printf "%s\\n" "GL_PRMG_CONFIG: $GL_PRMG_CONFIG"
 
 #Configs
-printf "%s\\n"  "Gl_cfg_BID: $Gl_cfg_BID"
+printf "%s\\n" "Global Configs"
+printf "%s\\n" "Gl_cfg_BID: $Gl_cfg_BID"
 printf "%s\\n" "Gl_cfg_Action: $Gl_cfg_Action"
 printf "%s\\n" "Gl_cfg_Program: $Gl_cfg_Program"
 printf "%s\\n" "Gl_cfg_Arguments: $Gl_cfg_Arguments"
@@ -86,9 +90,8 @@ printf "%s\\n" "Gl_cfg_Source: $Gl_cfg_Source"
 printf "%s\\n" "Gl_cfg_Backup: $Gl_cfg_Backup"
 printf "%s\\n" "Gl_cfg_cd: $Gl_cfg_cd"
 printf "%s\\n" "Gl_cfg_UMASK: $Gl_cfg_UMASK"
-
-
 }
+
 #testing
 load_config
 print_globals
