@@ -15,8 +15,7 @@
 
 ## Examples:                 <a name="Examples"></a>
 
-## Exit status:
-<a name="Exit_status"></a>
+## Exit status:              <a name="Exit_status"></a>
 
     0  Success
     1  General Failure (varied message)
@@ -24,13 +23,13 @@
     4  Entry "$CONFIG_LINE" is incorrect
     5  $NUM_OF_ENTRIES entries found in $GL_PRMG_CONFIG for "$Gl_cfg_Program:$Gl_cfg_Action"
     6  $entry is unknown (col: $col)
+    7  Unable to use file: "$GL_BACKUP_CONFIG". (Does files exist and is it readable?)
+    8  File type is not ASCII text
+    9  "$CONFIG" is not owned by root or $USERID (File owner: $config_user)
+    10 Wrong permissions on file: $CONFIG. (Is file write/executable by group or other?)
 
 # old
 
-  7   "Unable to use file:\"$CONFIG\". (Does files exist and is it readable?)"
-  8   "Wrong permissions on file: [CONFIG_file]. (Is file write/executable by group or other?)"
-  9   "Function missing from Config [ PASSED_VALUE: $PASSED_VALUE ]"
-  10  "No usable configuration found"
   11  "Backup Mode already set
   12  "User or System config not chosen"
   13  "Invalid argument entered -$OPTARG"
@@ -41,8 +40,12 @@
   18  "Backup mode was never chosen"
 
 ## Configuration files:      <a name="Configuration_files"></a>
+Files must be ASCII text, owned by script user or root and only writable by owner
+
  - back.config - backup entry lists
  - prgm.config - program usage configuration
+
+
 
 
 ## Configuration functions:  <a name="Configuration_functions"></a>

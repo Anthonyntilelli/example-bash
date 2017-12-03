@@ -17,6 +17,7 @@ set -euo pipefail
 #readonly GL_BACKUP_CONFIG="testing/tar_local.test"
 readonly GL_BACKUP_CONFIG="backup.config"
 readonly GL_PRMG_CONFIG="prgm.config"
+#readonly GL_PRMG_CONFIG="testing/tar.test"
 
 # Global(Gl) Variables
 Gl_cfg_BID="${1}"
@@ -34,7 +35,7 @@ function fail() {
 # Outputs error-message and force-quits script
   local -r ERRORCODE=${1}
   local -r ERROR_MESSAGE="${2}"
-  printf "%s\\n" "ERROR: $ERROR_MESSAGE" >&2
+  printf "%s\\n" "ERROR $ERRORCODE: $ERROR_MESSAGE" >&2
   exit "$ERRORCODE"
 }
 
@@ -58,6 +59,44 @@ printf "%s\\n" "Gl_cfg_UMASK: $Gl_cfg_UMASK"
 #Command
 printf "%s\\n" "Backup Command"
 printf "%s\\n" "Gl_backup_command: $Gl_backup_command"
+}
+
+function validate_config_file() {
+# Evaluates config files:
+# - Readable/exist
+# - ASCII text
+# - Owned by script user or root
+# - Writable by owner only.
+
+# RETURN:
+# Returns 0 or exits with failure
+
+  local -r USERID=${1} #UID of the user calling script
+  local -r CONFIG=${2} #File to evaluate
+  local config_user #config user owner
+
+  #Validates config files is readable by script user
+  if [[ -r "$CONFIG" ]]; then
+    #Is file ASCII text?
+    if [[ "$(file "$CONFIG")" =~ ": ASCII text" ]] ; then
+     config_user=$(stat -c %u "$CONFIG")
+     if (( config_user == 0 )) || (( config_user == $USERID )) ; then
+       #writable by owner only??
+       if [[ "$(stat -c %A "$CONFIG")" != -r???--?-- ]]; then
+         fail 10 "Wrong permissions on file: $CONFIG. (Is file write/executable by group or other?)"
+       fi
+     else
+       fail 9 "\"$CONFIG\" is not owned by root or $USERID (File owner: $config_user)"
+      fi
+    else
+     fail 8 "File type is not ASCII text"
+    fi
+  else
+    fail 7 "Unable to use file: \"$CONFIG\". (Does files exist and is it readable?)"
+  fi
+
+return 0
+
 }
 
 function load_config() {
@@ -150,6 +189,7 @@ function run_backup () { #TODO: not fully working as intented
 # - Gl_cfg_cd
 # - Gl_cfg_UMASK
 # - Gl_backup_command
+
   if [[ -n "$Gl_cfg_UMASK" ]] ; then
     printf "%d" "$Gl_cfg_UMASK" > /dev/null
     #validating $Gl_cfg_UMASK is a number
@@ -166,9 +206,11 @@ function run_backup () { #TODO: not fully working as intented
 }
 
 #testing
-load_config
-load_prgm
-run_backup
-#print_globals
+validate_config_file "$UID" "$GL_BACKUP_CONFIG"
+validate_config_file "$UID" "$GL_PRMG_CONFIG"
+#load_config
+#load_prgm
+#run_backup
+print_globals
 
 exit 99
