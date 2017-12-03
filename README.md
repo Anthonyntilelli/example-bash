@@ -23,10 +23,10 @@
     3  $NUM_OF_ENTRIES entries found in $GLOBAL_BACKUP_CONFIG for "$Entry_NAME:$ACTION"
     4  Entry "$CONFIG_LINE" is incorrect
     5  $NUM_OF_ENTRIES entries found in $GL_PRMG_CONFIG for "$Gl_cfg_Program:$Gl_cfg_Action"
+    6  $entry is unknown (col: $col)
 
 # old
 
-  6   "User configuration file is not owned specified user [uid]"
   7   "Unable to use file:\"$CONFIG\". (Does files exist and is it readable?)"
   8   "Wrong permissions on file: [CONFIG_file]. (Is file write/executable by group or other?)"
   9   "Function missing from Config [ PASSED_VALUE: $PASSED_VALUE ]"
