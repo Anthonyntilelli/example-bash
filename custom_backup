@@ -143,7 +143,7 @@ function load_prgm() {
   fi
 }
 
-function run_backup () {
+function run_backup () { #TODO: not fully working as intented
 # Change directory and umask, if needed,  and runs backup
 
 # Reads Global variables
@@ -160,9 +160,9 @@ function run_backup () {
   else
     cd /
   fi
-  set -x
-  echo "$Gl_backup_command"
-  $Gl_backup_command #not expanding $HOME
+  set -x #PLACEHOLDER
+  echo "$Gl_backup_command" #PLACEHOLDER
+  $Gl_backup_command # ERROR:not expanding $HOME
 }
 
 #testing
