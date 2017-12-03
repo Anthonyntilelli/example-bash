@@ -143,9 +143,32 @@ function load_prgm() {
   fi
 }
 
+function run_backup () {
+# Change directory and umask, if needed,  and runs backup
+
+# Reads Global variables
+# - Gl_cfg_cd
+# - Gl_cfg_UMASK
+# - Gl_backup_command
+  if [[ -n "$Gl_cfg_UMASK" ]] ; then
+    printf "%d" "$Gl_cfg_UMASK" > /dev/null
+    #validating $Gl_cfg_UMASK is a number
+    umask "$Gl_cfg_UMASK"
+  fi
+  if [[ -n "$Gl_cfg_cd" ]] ; then
+    cd "$Gl_cfg_cd"
+  else
+    cd /
+  fi
+  set -x
+  echo "$Gl_backup_command"
+  $Gl_backup_command #not expanding $HOME
+}
+
 #testing
 load_config
 load_prgm
-print_globals
+run_backup
+#print_globals
 
 exit 99
