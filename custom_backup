@@ -32,7 +32,7 @@ Gl_backup_command=""
 
 # FUNCTIONS
 function fail() {
-# Outputs error-message and force-quits script
+  # Outputs error-message and force-quits script
   local -r ERRORCODE=${1}
   local -r ERROR_MESSAGE="${2}"
   printf "%s\\n" "ERROR $ERRORCODE: $ERROR_MESSAGE" >&2
@@ -40,25 +40,25 @@ function fail() {
 }
 
 function print_globals() {
-#File
-printf "%s\\n" "FILES USED"
-printf "%s\\n" "GL_BACKUP_CONFIG: $GL_BACKUP_CONFIG"
-printf "%s\\n" "GL_PRMG_CONFIG: $GL_PRMG_CONFIG"
+  # File
+  printf "%s\\n" "FILES USED"
+  printf "%s\\n" "GL_BACKUP_CONFIG: $GL_BACKUP_CONFIG"
+  printf "%s\\n" "GL_PRMG_CONFIG: $GL_PRMG_CONFIG"
 
-#Configs
-printf "%s\\n" "Global Configs"
-printf "%s\\n" "Gl_cfg_BID: $Gl_cfg_BID"
-printf "%s\\n" "Gl_cfg_Action: $Gl_cfg_Action"
-printf "%s\\n" "Gl_cfg_Program: $Gl_cfg_Program"
-printf "%s\\n" "Gl_cfg_Arguments: $Gl_cfg_Arguments"
-printf "%s\\n" "Gl_cfg_Source: $Gl_cfg_Source"
-printf "%s\\n" "Gl_cfg_Backup: $Gl_cfg_Backup"
-printf "%s\\n" "Gl_cfg_cd: $Gl_cfg_cd"
-printf "%s\\n" "Gl_cfg_UMASK: $Gl_cfg_UMASK"
+  # Configs
+  printf "%s\\n" "Global Configs"
+  printf "%s\\n" "Gl_cfg_BID: $Gl_cfg_BID"
+  printf "%s\\n" "Gl_cfg_Action: $Gl_cfg_Action"
+  printf "%s\\n" "Gl_cfg_Program: $Gl_cfg_Program"
+  printf "%s\\n" "Gl_cfg_Arguments: $Gl_cfg_Arguments"
+  printf "%s\\n" "Gl_cfg_Source: $Gl_cfg_Source"
+  printf "%s\\n" "Gl_cfg_Backup: $Gl_cfg_Backup"
+  printf "%s\\n" "Gl_cfg_cd: $Gl_cfg_cd"
+  printf "%s\\n" "Gl_cfg_UMASK: $Gl_cfg_UMASK"
 
-#Command
-printf "%s\\n" "Backup Command"
-printf "%s\\n" "Gl_backup_command: $Gl_backup_command"
+  # Command
+  printf "%s\\n" "Backup Command"
+  printf "%s\\n" "Gl_backup_command: $Gl_backup_command"
 }
 
 function validate_config_file() {
