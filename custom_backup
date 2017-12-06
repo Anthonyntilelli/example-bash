@@ -199,12 +199,18 @@ function run_backup () { #TODO: not fully working as intented
   #$BACKUP_COMMAND # ERROR:not expanding $HOME
   #TODO HANDLE IF BACKUP COMMAND FAILES
 }
-#testing
-validate_config_file "$UID" "$GL_BACKUP_CONFIG"
-validate_config_file "$UID" "$GL_PRMG_CONFIG"
-#load_config
-#load_prgm
-#print_globals
-#run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+
+function main() {
+  #TODO: Convert to local as much as possible
+  validate_config_file "$UID" "$GL_BACKUP_CONFIG"
+  validate_config_file "$UID" "$GL_PRMG_CONFIG"
+  load_config
+  load_prgm
+  print_globals
+  run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+  return 0
+}
+
+main "$@"
 
 exit 99
