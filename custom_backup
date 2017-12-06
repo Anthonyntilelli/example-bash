@@ -99,21 +99,20 @@ function validate_config_file() {
 }
 
 function load_config() {
-# Reads in backup config entry and convets to global variables
+  # Reads in backup config entry and convets to global variables
 
-# Reads Global variables:
-# - Gl_cfg_BID
-# - Gl_cfg_Action
-# - GL_BACKUP_CONFIG
+  # Reads Global variables:
+  # - Gl_cfg_BID
+  # - Gl_cfg_Action
+  # - GL_BACKUP_CONFIG
 
-
-# Modifies Global variables:
-# - Gl_cfg_Program
-# - Gl_cfg_Arguments
-# - Gl_cfg_Source
-# - Gl_cfg_Backup
-# - Gl_cfg_cd
-# - Gl_cfg_UMASK
+  # Modifies Global variables:
+  # - Gl_cfg_Program
+  # - Gl_cfg_Arguments
+  # - Gl_cfg_Source
+  # - Gl_cfg_Backup
+  # - Gl_cfg_cd
+  # - Gl_cfg_UMASK
 
   local -r CONFIG_LINE=$(grep "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG" | sed 's/\s*#.*//g')
   #sed - removes comments from end of lines
