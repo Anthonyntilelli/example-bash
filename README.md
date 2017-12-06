@@ -26,7 +26,7 @@
     7  Unable to use file: "$GL_BACKUP_CONFIG". (Does files exist and is it readable?)
     8  File "$CONFIG" is not ASCII text type"
     9  "$CONFIG" is not owned by root or $USERID (File owner: $config_user)
-    10 Wrong permissions on file: $CONFIG.(Is file write/executable by group/other?)"
+    10 Wrong permissions on file: $CONFIG.(Is file write/executable by group/other?)
     11 umask is invalid ($SET_UMASK)
 
 # old

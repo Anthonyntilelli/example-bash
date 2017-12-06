@@ -20,8 +20,8 @@ readonly GL_PRMG_CONFIG="prgm.config"
 #readonly GL_PRMG_CONFIG="testing/tar.test"
 
 # Global(Gl) Variables
-Gl_cfg_BID="${1}" #temp
-declare -u Gl_cfg_Action="${2}" #temp
+Gl_cfg_BID=""
+declare -u Gl_cfg_Action=""
 Gl_cfg_Program=""
 Gl_cfg_Arguments=""
 Gl_cfg_Source=""
@@ -200,14 +200,36 @@ function run_backup () { #TODO: not fully working as intented
   #TODO HANDLE IF BACKUP COMMAND FAILES
 }
 
+function usage_short() {
+  #outputs usage
+  printf "%s\\n"  "${0} -[ioRs]-[B=<BID>] [-D]"
+}
+
+usage() {
+  #OUTPUT
+  #help information
+
+  usage_short
+  printf "%s\\n"
+  printf "%s\\n" "First Parameter"
+  printf "%s\\n" "  -i  Runs INITIAL Action"
+  printf "%s\\n" "  -o  Runs ONGOING Action"
+  printf "%s\\n" "  -R  Run RESTORE Action"
+  printf "%s\\n" "  -h  Prints help message and exits"
+  printf "%s\\n" "Second Shell parameter"
+  printf "%s\\n" "  -B  specify BID to run"
+  printf "%s\\n" "Optional Third Parameter"
+  printf "%s\\n" "  -D  Dry run, prints variables and does not run command"
+}
 function main() {
-  #TODO: Convert to local as much as possible
-  validate_config_file "$UID" "$GL_BACKUP_CONFIG"
-  validate_config_file "$UID" "$GL_PRMG_CONFIG"
-  load_config
-  load_prgm
-  print_globals
-  run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+  usage_short
+  usage
+  #validate_config_file "$UID" "$GL_BACKUP_CONFIG"
+  #validate_config_file "$UID" "$GL_PRMG_CONFIG"
+  #load_config
+  #load_prgm
+  #print_globals
+  #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
   return 0
 }
 
