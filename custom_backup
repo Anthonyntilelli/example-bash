@@ -33,6 +33,7 @@ Gl_backup_command=""
 # FUNCTIONS
 function fail() {
   # Outputs error-message and force-quits script
+
   local -r ERRORCODE=${1}
   local -r ERROR_MESSAGE="${2}"
   printf "%s\\n" "ERROR $ERRORCODE: $ERROR_MESSAGE" >&2
@@ -138,19 +139,19 @@ function load_config() {
 }
 
 function load_prgm() {
-# Reads in program prmg entry and convets to backup command
+  # Reads in program prmg entry and convets to backup command
 
-# Reads Global variables
-# - Gl_cfg_Program
-# - Gl_cfg_Action
-# - GL_PRMG_CONFIG
-# - Gl_cfg_Program
-# - Gl_cfg_Arguments
-# - Gl_cfg_Sourc
-# - Gl_cfg_Backup
+  # Reads Global variables
+  # - Gl_cfg_Program
+  # - Gl_cfg_Action
+  # - GL_PRMG_CONFIG
+  # - Gl_cfg_Program
+  # - Gl_cfg_Arguments
+  # - Gl_cfg_Sourc
+  # - Gl_cfg_Backup
 
-# # Modifies Global variables:
-# - Gl_backup_command
+  # Modifies Global variables:
+  # - Gl_backup_command
 
   local -r CONFIG_LINE=$(grep "$Gl_cfg_Program:.*$Gl_cfg_Action" "$GL_PRMG_CONFIG" | sed 's/\s*#.*//g')
   #sed - removes comments from end of lines
@@ -163,19 +164,13 @@ function load_prgm() {
     for (( col=3; col<=NUM_OF_COLUMNS; col++ )) ; do
       entry=$(printf "%s\\n" "$CONFIG_LINE" | cut -f "$col" -d ':')
       case "$entry" in
-      "arguments")
-        Gl_backup_command+="${Gl_cfg_Arguments} "
-        ;;
-      "source")
-        Gl_backup_command+="\"${Gl_cfg_Source}\" "
-        ;;
-      "backup")
-        Gl_backup_command+="\"${Gl_cfg_Backup}\" "
-        ;;
-      *)
-        Gl_backup_command="false"
-        fail 6 "$entry is unknown (col: $col)"
-        ;;
+        "arguments")  Gl_backup_command+="${Gl_cfg_Arguments} "   ;;
+        "source")     Gl_backup_command+="\"${Gl_cfg_Source}\" "  ;;
+        "backup")     Gl_backup_command+="\"${Gl_cfg_Backup}\" "  ;;
+        *)
+          Gl_backup_command="false"
+          fail 6 "$entry is unknown (col: $col)"
+          ;;
       esac
     done
   else
@@ -184,8 +179,8 @@ function load_prgm() {
 }
 
 function run_backup () { #TODO: not fully working as intented
-#  set -x #PLACEHOLDER
-# Change directory and umask, if needed,  and runs backup
+  # Change directory and umask, if needed,  and runs backup
+
   local -r BACKUP_COMMAND="${1}" #Command to run backup (required)
   local -r WORKING_DIR="${2:-/}"
   #Directory to change to before running backup (default /)
@@ -196,9 +191,10 @@ function run_backup () { #TODO: not fully working as intented
   case $SET_UMASK in #ensuring is a valid umask
     SKIP) ;; #DO-NOTHING
     [0-7] | [0-7][0-7] | [0-7][0-7][0-7] | [0-7][0-7][0-7][0-7] )
-      umask "${SET_UMASK}" ;;
+      umask "${SET_UMASK}"
+      ;;
     *) fail 11  "umask is invalid (${SET_UMASK})" ;;
-    esac
+  esac
   echo "$BACKUP_COMMAND" #PLACEHOLDER
   #$BACKUP_COMMAND # ERROR:not expanding $HOME
   #TODO HANDLE IF BACKUP COMMAND FAILES
