@@ -20,8 +20,8 @@ readonly GL_PRMG_CONFIG="prgm.config"
 #readonly GL_PRMG_CONFIG="testing/tar.test"
 
 # Global(Gl) Variables
-Gl_cfg_BID="${1}"
-Gl_cfg_Action="${2}"
+Gl_cfg_BID="${1}" #temp
+declare -u Gl_cfg_Action="${2}" #temp
 Gl_cfg_Program=""
 Gl_cfg_Arguments=""
 Gl_cfg_Source=""
@@ -80,7 +80,7 @@ function validate_config_file() {
     #Is file ASCII text?
     if [[ "$(file "$CONFIG")" =~ ": ASCII text" ]] ; then
      config_user=$(stat -c %u "$CONFIG")
-     if (( config_user == 0 )) || (( config_user == $USERID )) ; then
+     if (( config_user == 0 )) || (( config_user == "$USERID" )) ; then
        #writable by owner only??
        if [[ "$(stat -c %A "$CONFIG")" != -r???--?-- ]]; then
          fail 10 "Wrong permissions on file: $CONFIG. (Is file write/executable by group or other?)"
@@ -96,7 +96,6 @@ function validate_config_file() {
   fi
 
 return 0
-
 }
 
 function load_config() {
@@ -183,34 +182,31 @@ function load_prgm() {
 }
 
 function run_backup () { #TODO: not fully working as intented
+#  set -x #PLACEHOLDER
 # Change directory and umask, if needed,  and runs backup
+  local -r BACKUP_COMMAND="${1}" #Command to run backup (required)
+  local -r WORKING_DIR="${2:-/}"
+  #Directory to change to before running backup (default /)
+  local -r SET_UMASK="${3:-SKIP}"
+  #umask to set before running backup (default SKIP)
 
-# Reads Global variables
-# - Gl_cfg_cd
-# - Gl_cfg_UMASK
-# - Gl_backup_command
-
-  if [[ -n "$Gl_cfg_UMASK" ]] ; then
-    printf "%d" "$Gl_cfg_UMASK" > /dev/null
-    #validating $Gl_cfg_UMASK is a number
-    umask "$Gl_cfg_UMASK"
-  fi
-  if [[ -n "$Gl_cfg_cd" ]] ; then
-    cd "$Gl_cfg_cd"
-  else
-    cd /
-  fi
-  set -x #PLACEHOLDER
-  echo "$Gl_backup_command" #PLACEHOLDER
-  $Gl_backup_command # ERROR:not expanding $HOME
+  cd "${WORKING_DIR}"
+  case $SET_UMASK in #ensuring is a valid umask
+    SKIP) ;; #DO-NOTHING
+    [0-7] | [0-7][0-7] | [0-7][0-7][0-7] | [0-7][0-7][0-7][0-7] )
+      umask "${SET_UMASK}" ;;
+    *) fail 11  "umask is invalid (${SET_UMASK})" ;;
+    esac
+  echo "$BACKUP_COMMAND" #PLACEHOLDER
+  $BACKUP_COMMAND # ERROR:not expanding $HOME
+  #TODO HANDLE IF BACKUP COMMAND FAILES
 }
-
 #testing
 validate_config_file "$UID" "$GL_BACKUP_CONFIG"
 validate_config_file "$UID" "$GL_PRMG_CONFIG"
-#load_config
-#load_prgm
-#run_backup
+load_config
+load_prgm
 print_globals
+run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
 
 exit 99

@@ -27,10 +27,10 @@
     8  File type is not ASCII text
     9  "$CONFIG" is not owned by root or $USERID (File owner: $config_user)
     10 Wrong permissions on file: $CONFIG. (Is file write/executable by group or other?)
+    11 umask is invalid ($SET_UMASK)
 
 # old
 
-  11  "Backup Mode already set
   12  "User or System config not chosen"
   13  "Invalid argument entered -$OPTARG"
   14  "$OPTARG requires an argument"
