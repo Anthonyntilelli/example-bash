@@ -62,14 +62,14 @@ function print_globals() {
 }
 
 function validate_config_file() {
-# Evaluates config files:
-# - Readable/exist
-# - ASCII text
-# - Owned by script user or root
-# - Writable by owner only.
+  # Evaluates config files:
+  # - Readable/exist
+  # - ASCII text
+  # - Owned by script user or root
+  # - Writable by owner only.
 
-# RETURN:
-# Returns 0 or exits with failure
+  # Return:
+  # Returns 0 or exits with failure
 
   local -r USERID=${1} #UID of the user calling script
   local -r CONFIG=${2} #File to evaluate
@@ -79,23 +79,23 @@ function validate_config_file() {
   if [[ -r "$CONFIG" ]]; then
     #Is file ASCII text?
     if [[ "$(file "$CONFIG")" =~ ": ASCII text" ]] ; then
-     config_user=$(stat -c %u "$CONFIG")
-     if (( config_user == 0 )) || (( config_user == "$USERID" )) ; then
-       #writable by owner only??
-       if [[ "$(stat -c %A "$CONFIG")" != -r???--?-- ]]; then
-         fail 10 "Wrong permissions on file: $CONFIG. (Is file write/executable by group or other?)"
-       fi
-     else
-       fail 9 "\"$CONFIG\" is not owned by root or $USERID (File owner: $config_user)"
+      config_user=$(stat -c %u "$CONFIG")
+      #If file owned by root or USERID
+      if (( config_user == 0 )) || (( config_user == "$USERID" )) ; then
+        #writable by owner only??
+        if [[ "$(stat -c %A "$CONFIG")" != -r???--?-- ]]; then
+          fail 10 "Wrong permissions on file: $CONFIG.(Is file write/executable by group/other?)"
+        fi
+      else
+        fail 9 "\"$CONFIG\" is not owned by root or $USERID (File owner: $config_user)"
       fi
     else
-     fail 8 "File \"$CONFIG\" is not ASCII text type"
+      fail 8 "File \"$CONFIG\" is not ASCII text type"
     fi
   else
     fail 7 "Unable to use file: \"$CONFIG\". (Does files exist and is it readable?)"
   fi
-
-return 0
+  return 0
 }
 
 function load_config() {
@@ -207,9 +207,9 @@ function run_backup () { #TODO: not fully working as intented
 #testing
 validate_config_file "$UID" "$GL_BACKUP_CONFIG"
 validate_config_file "$UID" "$GL_PRMG_CONFIG"
-load_config
-load_prgm
+#load_config
+#load_prgm
 #print_globals
-run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+#run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
 
 exit 99
