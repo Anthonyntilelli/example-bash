@@ -24,7 +24,7 @@
     5  $NUM_OF_ENTRIES entries found in $GL_PRMG_CONFIG for "$Gl_cfg_Program:$Gl_cfg_Action"
     6  $entry is unknown (col: $col)
     7  Unable to use file: "$GL_BACKUP_CONFIG". (Does files exist and is it readable?)
-    8  File type is not ASCII text
+    8  File "$CONFIG" is not ASCII text type"
     9  "$CONFIG" is not owned by root or $USERID (File owner: $config_user)
     10 Wrong permissions on file: $CONFIG. (Is file write/executable by group or other?)
     11 umask is invalid ($SET_UMASK)

@@ -89,7 +89,7 @@ function validate_config_file() {
        fail 9 "\"$CONFIG\" is not owned by root or $USERID (File owner: $config_user)"
       fi
     else
-     fail 8 "File type is not ASCII text"
+     fail 8 "File \"$CONFIG\" is not ASCII text type"
     fi
   else
     fail 7 "Unable to use file: \"$CONFIG\". (Does files exist and is it readable?)"
