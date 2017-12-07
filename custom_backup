@@ -202,7 +202,7 @@ function run_backup () { #TODO: not fully working as intented
 
 function usage_short() {
   #outputs usage
-  printf "%s\\n"  "${0} -[ioRs]-[B=<BID>] [-D]"
+  printf "%s -[ioRs]-[B=<BID>] [-D]\\n" "${0##*/}"
 }
 
 usage() {
@@ -210,45 +210,68 @@ usage() {
   #help information
 
   usage_short
-  printf "%s\\n"
-  printf "%s\\n" "First Parameter"
-  printf "%s\\n" "  -i  Runs INITIAL Action"
-  printf "%s\\n" "  -o  Runs ONGOING Action"
-  printf "%s\\n" "  -R  Run RESTORE Action"
-  printf "%s\\n" "  -h  Prints help message and exits"
-  printf "%s\\n" "Second Shell parameter"
-  printf "%s\\n" "  -B  specify BID to run"
-  printf "%s\\n" "Optional Third Parameter"
-  printf "%s\\n" "  -D  Dry run, prints variables and does not run command"
+  printf "\\nAction Parameters (choose one)\\n"
+  printf "  -i  Run INITIAL Action\\n"
+  printf "  -o  Run ONGOING Action\\n"
+  printf "  -R  Run RESTORE Action\\n"
+  printf "  -s  Run SHOW    Action\\n"
+  printf "  -h  Prints help message and exits\\n"
+  printf "Backup ID\\n"
+  printf "  -B=  sets backup ID (must start with \`=\`)\\n"
 }
-user_input ()
-{
-  while getopts ":ioRhB:D" opt; do
+function main() {
+  local cfg_BID=""
+  local -u cfg_action=""
+  local -i action_count=0
+
+  validate_config_file "$UID" "$GL_BACKUP_CONFIG"
+  validate_config_file "$UID" "$GL_PRMG_CONFIG"
+
+  if (( $# == 0 )) ; then
+    usage_short
+    fail 15 "missing parameters"
+  fi
+
+  while getopts ":ioRshB:" opt; do
     case $opt in
-      "i")  echo "i" ;;
-      "o")  echo "o" ;;
-      "R")  echo "R" ;;
+      "i")  cfg_action="INITIAL" && action_count+=1 ;;
+      "o")  cfg_action="ONGOING" && action_count+=1 ;;
+      "R")  cfg_action="RESTORE" && action_count+=1 ;;
+      "s")  cfg_action="SHOW"    && action_count+=1 ;;
       "h")  usage ; exit 0 ;;
-      "B")  echo "B=${OPTARG}" ;;
-      "D")  echo "D" ;;
+      "B")
+        if [[ -z "$cfg_BID" ]]; then
+          if [[ $OPTARG =~ ^= ]]; then #$OPTARG must start with =
+            cfg_BID="${OPTARG#=}" #removing starting "="
+          else
+           fail 17  "-B argument must start with \`=\` (OPTARG: ${OPTARG} is invalid)"
+          fi
+        else
+          fail 16  "-B already set"
+        fi
+        ;;
       \?)  fail 13 "Invalid argument entered -${OPTARG}" ;;
       ":") fail 14 "-${OPTARG} requires an argument"     ;;
     esac
   done
-  #shift $((OPTIND-1))
-}
+  shift $((OPTIND-1))
+  if (( action_count == 1 )) ; then
+    if [[ $cfg_BID =~ ^# ]] ; then
+      fail 18 "BID has # in it (${cfg_BID})"
+    fi
 
-function main() {
-  user_input "$@"
-  #validate_config_file "$UID" "$GL_BACKUP_CONFIG"
-  #validate_config_file "$UID" "$GL_PRMG_CONFIG"
-  #load_config
-  #load_prgm
-  #print_globals
-  #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+    Gl_cfg_BID="$cfg_BID" # tmp
+    Gl_cfg_Action="$cfg_action" #tmp
+    load_config
+    load_prgm
+    print_globals
+
+    #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+  else
+    fail 12 "More or less then one action set (count: ${action_count})"
+  fi
   return 0
 }
 
 main "$@"
-
 exit 99
