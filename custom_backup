@@ -250,9 +250,6 @@ function main() {
   local cfg_BID=""
   local -u cfg_action=""
   local cfg_Program=""
-  local cfg_BID=""
-  local cfg_Action=""
-  local cfg_Program=""
   local cfg_Arguments=""
   local cfg_Source=""
   local cfg_Backup=""
@@ -284,6 +281,7 @@ function main() {
   #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
   return 0
 }
+
 validate_config_file "$UID" "$GL_BACKUP_CONFIG"
 validate_config_file "$UID" "$GL_PRMG_CONFIG"
 main "$@"
