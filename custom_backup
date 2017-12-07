@@ -80,13 +80,13 @@ function find_config() {
   # - cfg_UMASK
 
   #checking if variable exists (prevent nonlocal variable creation in function)
-  local nothing
-  nothing=${cfg_Program?"cfg_Program is not set"}
-  nothing=${cfg_Arguments?"cfg_Arguments is not set"}
-  nothing=${cfg_Source?"cfg_Source is not set"}
-  nothing=${cfg_Backup?"cfg_Backup is not set"}
-  nothing=${cfg_cd? "cfg_cd is not set"}
-  nothing=${cfg_UMASK? "cfg_UMASK is not set"}
+  local assert
+  assert=${cfg_Program?"cfg_Program is not set"}
+  assert=${cfg_Arguments?"cfg_Arguments is not set"}
+  assert=${cfg_Source?"cfg_Source is not set"}
+  assert=${cfg_Backup?"cfg_Backup is not set"}
+  assert=${cfg_cd? "cfg_cd is not set"}
+  assert=${cfg_UMASK? "cfg_UMASK is not set"}
 
   local -r CONFIG_LINE=$(grep "^$BID:.*$ACTION" "$BCKP_CONFIG" | sed 's/\s*#.*//g')
   #sed - removes comments from end of lines
@@ -146,6 +146,47 @@ function load_prgm() {
   fi
 }
 
+function find_prgm(){
+  #Finds and processes config from given prgm config file
+  local -r PROGRAM="$1"
+  local -ru ACTION="$2"
+  local -r ARGUMENTS="$3"
+  local -r SOURCE="$4"
+  local -r BACKUP="$5"
+  local -r PRMG_CONFIG_FILE="$6"
+
+  #Return Variables (expected set)
+  # - backup_command
+
+  #checking if variable exists (prevent nonlocal variable creation in function)
+  local assert=${backup_command?"backup_command is not set"}
+
+  local -r CONFIG_LINE=$(grep "^$PROGRAM:.*$ACTION" "$PRMG_CONFIG_FILE" | sed 's/\s*#.*//g')
+  #sed - removes comments from end of lines
+  local -r NUM_OF_ENTRIES=$(grep -c "^$PROGRAM:.*$ACTION" "$PRMG_CONFIG_FILE")
+
+  if (( NUM_OF_ENTRIES == 1 )); then
+    local IFS=:
+    set -- $CONFIG_LINE
+    shift 2 #removing program and Action
+
+    backup_command="${PROGRAM} "
+    while (( $# > 0  )) ; do
+      case "${1}" in
+        "arguments")  backup_command+="${ARGUMENTS} "   ;;
+        "source")     backup_command+="\"${SOURCE}\" "  ;;
+        "backup")     backup_command+="\"${BACKUP}\" "  ;;
+        *)            fail 6 "${1} is unknown" ;;
+      esac
+      shift
+    done
+    #remove end space
+    backup_command=${backup_command% }
+  else
+    fail 5 "${NUM_OF_ENTRIES} entries found in ${PRMG_CONFIG_FILE} for \"${PROGRAM}:${ACTION}\""
+  fi
+}
+
 function run_backup () { #TODO: not fully working as intented
   # Change directory and umask, if needed,  and runs backup
 
@@ -198,9 +239,9 @@ function user_input() {
   # - cfg_action
 
   #checking if variable exists (prevent nonlocal variable creation in function)
-  local nothing
-  nothing=${cfg_BID?"cfg_BID is not set"}
-  nothing=${cfg_action?"cfg_action is not set"}
+  local assert
+  assert=${cfg_BID?"cfg_BID is not set"}
+  assert=${cfg_action?"cfg_action is not set"}
 
   local -i action_count=0
   while getopts ":ioRshB:" opt; do
@@ -247,6 +288,7 @@ function main() {
   # - GL_BACKUP_CONFIG
   # - GL_PRMG_CONFIG
 
+
   local cfg_BID=""
   local -u cfg_action=""
   local cfg_Program=""
@@ -265,19 +307,21 @@ function main() {
   fi
 
   find_config "$cfg_BID" "$cfg_action" "$GL_BACKUP_CONFIG"
-  #load_config "$cfg_BID" "$cfg_action" "$VALID_BACKUP_CONFIG"
+  find_prgm "$cfg_Program" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
+  #find_prgm "#${cfg_Program}" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
+
   #load_prgm
-
-  echo "cfg_BID: $cfg_BID"
-  echo "cfg_action: $cfg_action"
-  echo "cfg_Program: $cfg_Program"
-  echo "cfg_Arguments: $cfg_Arguments"
-  echo "cfg_Source: $cfg_Source"
-  echo "cfg_Backup: $cfg_Backup"
-  echo "cfg_cd: $cfg_cd"
-  echo "cfg_UMASK:$cfg_UMASK"
-  echo "backup_command: $backup_command"
-
+  if [[ $(false) ]] ; then
+    echo "cfg_BID: $cfg_BID"
+    echo "cfg_action: $cfg_action"
+    echo "cfg_Program: $cfg_Program"
+    echo "cfg_Arguments: $cfg_Arguments"
+    echo "cfg_Source: $cfg_Source"
+    echo "cfg_Backup: $cfg_Backup"
+    echo "cfg_cd: $cfg_cd"
+    echo "cfg_UMASK:$cfg_UMASK"
+    echo "backup_command: $backup_command"
+  fi
   #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
   return 0
 }

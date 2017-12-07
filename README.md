@@ -21,8 +21,8 @@
     1  General Failure (varied message)
     3  No entries found for "$CFG_BID:$CFG_ACTION"
     4  Entry "$CONFIG_LINE" is incorrect or more then one line was found
-    5  $NUM_OF_ENTRIES entries found in $GL_PRMG_CONFIG for "$Gl_cfg_Program:$Gl_cfg_Action"
-    6  $entry is unknown (col: $col)
+    5  $NUM_OF_ENTRIES entries found in $PRMG_CONFIG_FILE for "$PROGRAM:$ACTION"
+    6  $1 is unknown
     7  Unable to use file: "$GL_BACKUP_CONFIG". (Does files exist and is it readable?)
     8  File "$CONFIG" is not ASCII text type"
     9  "$CONFIG" is not owned by root or $USERID (File owner: $config_user)
