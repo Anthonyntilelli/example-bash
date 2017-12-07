@@ -106,45 +106,6 @@ function find_config() {
   fi
 }
 
-function load_prgm() {
-  # Reads in program prmg entry and convets to backup command
-
-  # Reads Global variables
-  # - Gl_cfg_Program
-  # - Gl_cfg_Action
-  # - GL_PRMG_CONFIG
-  # - Gl_cfg_Program
-  # - Gl_cfg_Arguments
-  # - Gl_cfg_Sourc
-  # - Gl_cfg_Backup
-
-  # Modifies Global variables:
-  # - Gl_backup_command
-
-  local -r CONFIG_LINE=$(grep "$Gl_cfg_Program:.*$Gl_cfg_Action" "$GL_PRMG_CONFIG" | sed 's/\s*#.*//g')
-  #sed - removes comments from end of lines
-  local -r NUM_OF_ENTRIES=$(grep -c "$Gl_cfg_Program:.*$Gl_cfg_Action" "$GL_PRMG_CONFIG")
-  local -r NUM_OF_COLUMNS=$(printf "%s\\n" "$CONFIG_LINE" | sed 's/[^:]//g' | wc -c)
-  local entry=""
-
-  if (( NUM_OF_ENTRIES == 1 )); then
-    Gl_backup_command="$Gl_cfg_Program "
-    for (( col=3; col<=NUM_OF_COLUMNS; col++ )) ; do
-      entry=$(printf "%s\\n" "$CONFIG_LINE" | cut -f "$col" -d ':')
-      case "$entry" in
-        "arguments")  Gl_backup_command+="${Gl_cfg_Arguments} "   ;;
-        "source")     Gl_backup_command+="\"${Gl_cfg_Source}\" "  ;;
-        "backup")     Gl_backup_command+="\"${Gl_cfg_Backup}\" "  ;;
-        *)
-          Gl_backup_command="false"
-          fail 6 "$entry is unknown (col: $col)"
-          ;;
-      esac
-    done
-  else
-    fail 5 "$NUM_OF_ENTRIES entries found in $GL_PRMG_CONFIG for \"$Gl_cfg_Program:$Gl_cfg_Action\""
-  fi
-}
 
 function find_prgm(){
   #Finds and processes config from given prgm config file
@@ -308,20 +269,16 @@ function main() {
 
   find_config "$cfg_BID" "$cfg_action" "$GL_BACKUP_CONFIG"
   find_prgm "$cfg_Program" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
-  #find_prgm "#${cfg_Program}" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
 
-  #load_prgm
-  if [[ $(false) ]] ; then
-    echo "cfg_BID: $cfg_BID"
-    echo "cfg_action: $cfg_action"
-    echo "cfg_Program: $cfg_Program"
-    echo "cfg_Arguments: $cfg_Arguments"
-    echo "cfg_Source: $cfg_Source"
-    echo "cfg_Backup: $cfg_Backup"
-    echo "cfg_cd: $cfg_cd"
-    echo "cfg_UMASK:$cfg_UMASK"
-    echo "backup_command: $backup_command"
-  fi
+  echo "cfg_BID: $cfg_BID"
+  echo "cfg_action: $cfg_action"
+  echo "cfg_Program: $cfg_Program"
+  echo "cfg_Arguments: $cfg_Arguments"
+  echo "cfg_Source: $cfg_Source"
+  echo "cfg_Backup: $cfg_Backup"
+  echo "cfg_cd: $cfg_cd"
+  echo "cfg_UMASK:$cfg_UMASK"
+  echo "backup_command: $backup_command"
   #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
   return 0
 }
