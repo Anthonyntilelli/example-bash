@@ -221,9 +221,25 @@ usage() {
   printf "%s\\n" "Optional Third Parameter"
   printf "%s\\n" "  -D  Dry run, prints variables and does not run command"
 }
+user_input ()
+{
+  while getopts ":ioRhB:D" opt; do
+    case $opt in
+      "i")  echo "i" ;;
+      "o")  echo "o" ;;
+      "R")  echo "R" ;;
+      "h")  usage ; exit 0 ;;
+      "B")  echo "B=${OPTARG}" ;;
+      "D")  echo "D" ;;
+      \?)  fail 13 "Invalid argument entered -${OPTARG}" ;;
+      ":") fail 14 "-${OPTARG} requires an argument"     ;;
+    esac
+  done
+  #shift $((OPTIND-1))
+}
+
 function main() {
-  usage_short
-  usage
+  user_input "$@"
   #validate_config_file "$UID" "$GL_BACKUP_CONFIG"
   #validate_config_file "$UID" "$GL_PRMG_CONFIG"
   #load_config

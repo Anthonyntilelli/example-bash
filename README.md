@@ -28,16 +28,13 @@
     9  "$CONFIG" is not owned by root or $USERID (File owner: $config_user)
     10 Wrong permissions on file: $CONFIG.(Is file write/executable by group/other?)
     11 umask is invalid ($SET_UMASK)
-
-# old
-
-  12  "User or System config not chosen"
-  13  "Invalid argument entered -$OPTARG"
-  14  "$OPTARG requires an argument"
-  15  "Invalid Configuration file(s) Chosen"
-  16  "-e already set"
-  17  "-e argument must start with \"=\" OPTARG: $OPTARG is invalid"
-  18  "Backup mode was never chosen"
+    12
+    13 Invalid argument entered -$OPTARG
+    14 $OPTARG requires an argument
+    15
+    16
+    17
+    18
 
 ## Configuration files:      <a name="Configuration_files"></a>
 Files must be ASCII text, owned by script user or root and only writable by owner
