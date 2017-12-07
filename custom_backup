@@ -68,11 +68,12 @@ function validate_config_file() {
   # - Writable by owner only.
 
   # Return:
+  # Ouputs file and path if validated
   # Returns 0 or exits with failure
 
-  local -r USERID=${1} #UID of the user calling script
-  local -r CONFIG=${2} #File to evaluate
-  local config_user #config user owner
+  local -r USERID="$1" #UID of the user calling script
+  local -r CONFIG="$2" #File to evaluate
+  local config_user="" #config user owner
 
   #Validates config files is readable by script user
   if [[ -r "$CONFIG" ]]; then
@@ -94,16 +95,12 @@ function validate_config_file() {
   else
     fail 7 "Unable to use file: \"$CONFIG\". (Does files exist and is it readable?)"
   fi
+  printf "%s\\n" "$CONFIG"
   return 0
 }
 
 function load_config() {
   # Reads in backup config entry and convets to global variables
-
-  # Reads Global variables:
-  # - Gl_cfg_BID
-  # - Gl_cfg_Action
-  # - GL_BACKUP_CONFIG
 
   # Modifies Global variables:
   # - Gl_cfg_Program
@@ -113,26 +110,32 @@ function load_config() {
   # - Gl_cfg_cd
   # - Gl_cfg_UMASK
 
-  local -r CONFIG_LINE=$(grep "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG" | sed 's/\s*#.*//g')
+  local -r CFG_BID="$1" #assumes there are no #
+  local -r CFG_ACTION="$2"
+  local -r BACKUP_CONFIG="$3" #assumed validated
+
+  local -r CONFIG_LINE=$(grep "^$CFG_BID:.*$CFG_ACTION" "$BACKUP_CONFIG" | sed 's/\s*#.*//g')
   #sed - removes comments from end of lines
-  local -r NUM_OF_ENTRIES=$(grep -c "^$Gl_cfg_BID:.*$Gl_cfg_Action" "$GL_BACKUP_CONFIG")
+  local -r NUM_OF_ENTRIES=$(grep -c "^$CFG_BID:.*$CFG_ACTION" "$BACKUP_CONFIG")
   local -r NUM_OF_COLUMNS=$(printf "%s\\n" "$CONFIG_LINE" | sed 's/[^:]//g' | wc -c)
 
   if (( NUM_OF_ENTRIES == 1 )); then
     if (( NUM_OF_COLUMNS == 8 )); then
-      Gl_cfg_Program=$(printf "%s\\n" "$CONFIG_LINE"   | cut -f 3 -d ':')
+      Gl_cfg_Program=$(printf "%s\\n"   "$CONFIG_LINE" | cut -f 3 -d ':')
       Gl_cfg_Arguments=$(printf "%s\\n" "$CONFIG_LINE" | cut -f 4 -d ':')
-      Gl_cfg_Source=$(printf "%s\\n" "$CONFIG_LINE"    | cut -f 5 -d ':')
-      Gl_cfg_Backup=$(printf "%s\\n" "$CONFIG_LINE"    | cut -f 6 -d ':')
-      Gl_cfg_cd=$(printf "%s\\n" "$CONFIG_LINE"        | cut -f 7 -d ':')
-      Gl_cfg_UMASK=$(printf "%s\\n" "$CONFIG_LINE"     | cut -f 8 -d ':')
+      Gl_cfg_Source=$(printf "%s\\n"    "$CONFIG_LINE" | cut -f 5 -d ':')
+      Gl_cfg_Backup=$(printf "%s\\n"    "$CONFIG_LINE" | cut -f 6 -d ':')
+      Gl_cfg_cd=$(printf "%s\\n"        "$CONFIG_LINE" | cut -f 7 -d ':')
+      Gl_cfg_UMASK=$(printf "%s\\n"     "$CONFIG_LINE" | cut -f 8 -d ':')
     else
       fail 4 "Entry \"$CONFIG_LINE\" is incorrect"
     fi
   else
     fail 3 "$NUM_OF_ENTRIES entries found in $GL_BACKUP_CONFIG for \"$Gl_cfg_BID:$Gl_cfg_Action\""
   fi
-
+  #local IFS=:
+  #set -- $CONFIG_LINE
+  #echo "$@# $#"
   return 0
 }
 
@@ -219,12 +222,16 @@ usage() {
 }
 
 function main() {
+  # Reads Global variables
+  # - GL_BACKUP_CONFIG
+  # - GL_PRMG_CONFIG
+
   local cfg_BID=""
   local -u cfg_action=""
   local -i action_count=0
 
-  validate_config_file "$UID" "$GL_BACKUP_CONFIG"
-  validate_config_file "$UID" "$GL_PRMG_CONFIG"
+  local -r VALID_BACKUP_CONFIG=$(validate_config_file "$UID" "$GL_BACKUP_CONFIG")
+  local -r VALID_PRMG_CONFIG=$(validate_config_file "$UID" "$GL_PRMG_CONFIG")
 
   if (( $# == 0 )) ; then
     usage_short
@@ -261,11 +268,11 @@ function main() {
 
     Gl_cfg_BID="$cfg_BID" # tmp
     Gl_cfg_Action="$cfg_action" #tmp
-    load_config
+    load_config "$cfg_BID" "$cfg_action" "$VALID_BACKUP_CONFIG"
     load_prgm
     print_globals
-
     #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+
   else
     fail 12 "More or less then one action set (count: ${action_count})"
   fi
