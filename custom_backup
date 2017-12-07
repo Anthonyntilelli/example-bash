@@ -34,9 +34,9 @@ Gl_backup_command=""
 function fail() {
   # Outputs error-message and force-quits script
 
-  local -r ERRORCODE=${1}
-  local -r ERROR_MESSAGE="${2}"
-  printf "%s\\n" "ERROR $ERRORCODE: $ERROR_MESSAGE" >&2
+  local -r ERRORCODE="$1"
+  local -r ERROR_MESSAGE="$2"
+  printf "ERROR %d: %s\\n" "$ERRORCODE" "$ERROR_MESSAGE" >&2
   exit "$ERRORCODE"
 }
 
@@ -219,6 +219,7 @@ usage() {
   printf "Backup ID\\n"
   printf "  -B=  sets backup ID (must start with \`=\`)\\n"
 }
+
 function main() {
   local cfg_BID=""
   local -u cfg_action=""
