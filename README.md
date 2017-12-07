@@ -31,10 +31,11 @@
     12 More or less then one action set (count: $action_count)
     13 Invalid argument entered -$OPTARG
     14 $OPTARG requires an argument
-    15
+    15 Unknown remaining command line argument (args: $@ )
     16 -B already set
-    17 -B argument must start with `=` OPTARG: $OPTARG is invalid
+    17 BID was never set
     18 BID has # in it ($cfg_BID)"
+    19 Command Line argument Missing
 
 ## Configuration files:      <a name="Configuration_files"></a>
 Files must be ASCII text, owned by script user or root and only writable by owner

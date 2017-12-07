@@ -67,9 +67,9 @@ function validate_config_file() {
 function find_config() {
   #Finds and processes config from given backup config file
 
-  local -r CFG_BID="$1" #assumes there are no #
-  local -r CFG_ACTION="$2"
-  local -r BACKUP_CONFIG="$3" #assumed validated
+  local -r BID="$1" #assumes there are no #
+  local -r ACTION="$2"
+  local -r BCKP_CONFIG="$3" #assumed validated
 
   #Return Variables (expected set)
   # - cfg_Program
@@ -79,7 +79,7 @@ function find_config() {
   # - cfg_cd
   # - cfg_UMASK
 
-  #checking if variable exists (prevent non-variable creation in function)
+  #checking if variable exists (prevent nonlocal variable creation in function)
   local nothing
   nothing=${cfg_Program?"cfg_Program is not set"}
   nothing=${cfg_Arguments?"cfg_Arguments is not set"}
@@ -88,7 +88,7 @@ function find_config() {
   nothing=${cfg_cd? "cfg_cd is not set"}
   nothing=${cfg_UMASK? "cfg_UMASK is not set"}
 
-  local -r CONFIG_LINE=$(grep "^$CFG_BID:.*$CFG_ACTION" "$BACKUP_CONFIG" | sed 's/\s*#.*//g')
+  local -r CONFIG_LINE=$(grep "^$BID:.*$ACTION" "$BCKP_CONFIG" | sed 's/\s*#.*//g')
   #sed - removes comments from end of lines
   local IFS=:
   set -- $CONFIG_LINE
@@ -100,7 +100,7 @@ function find_config() {
     cfg_cd=$7
     cfg_UMASK=${8-""} #$8 may be unset, defaults to empty
   elif ((${#} == 0)) ; then
-    fail 3 "No entries found for \"${CFG_BID}:${CFG_ACTION}\""
+    fail 3 "No entries found for \"${BID}:${ACTION}\""
   else
     fail 4 "Entry \"${CONFIG_LINE}\" is incorrect or more then one line was found"
   fi
@@ -185,44 +185,61 @@ usage() {
   printf "  -s  Run SHOW    Action\\n"
   printf "  -h  Prints help message and exits\\n"
   printf "Backup ID\\n"
-  printf "  -B=  sets backup ID (must start with \`=\`)\\n"
+  printf "  -B  sets backup ID\\n"
 }
+
 function user_input() {
   #Processes user command line input
-  local -i action_count=0
+  local bid=""
+  local action=""
 
+  #Return Variables (expected set)
+  # - cfg_BID
+  # - cfg_action
+
+  #checking if variable exists (prevent nonlocal variable creation in function)
+  local nothing
+  nothing=${cfg_BID?"cfg_BID is not set"}
+  nothing=${cfg_action?"cfg_action is not set"}
+
+  local -i action_count=0
   while getopts ":ioRshB:" opt; do
     case $opt in
-      "i")  cfg_action="INITIAL" && action_count+=1 ;;
-      "o")  cfg_action="ONGOING" && action_count+=1 ;;
-      "R")  cfg_action="RESTORE" && action_count+=1 ;;
-      "s")  cfg_action="SHOW"    && action_count+=1 ;;
+      "i")  action="INITIAL" && action_count+=1 ;;
+      "o")  action="ONGOING" && action_count+=1 ;;
+      "R")  action="RESTORE" && action_count+=1 ;;
+      "s")  action="SHOW"    && action_count+=1 ;;
       "h")  usage ; exit 0 ;;
       "B")
         if [[ -z "$cfg_BID" ]]; then
-          if [[ $OPTARG =~ ^= ]]; then #$OPTARG must start with =
-            cfg_BID="${OPTARG#=}" #removing starting "="
-          else
-           fail 17  "-B argument must start with \`=\` (OPTARG: ${OPTARG} is invalid)"
-          fi
+            bid="${OPTARG}"
         else
-          fail 16  "-B already set"
+          fail 16  "-B already set as ${bid}"
         fi
         ;;
       \?)  fail 13 "Invalid argument entered -${OPTARG}" ;;
       ":") fail 14 "-${OPTARG} requires an argument"     ;;
     esac
   done
-  shift $((OPTIND-1))
+
+  shift $((OPTIND-1)) #remove process commad line options
+  if (( ${#} != 0 )) ; then
+    fail 15 "Unknown remaining command line argument (args: ${@} )"
+  fi
 
   if (( action_count == 1 )) ; then
-    if [[ $cfg_BID =~ ^# ]] ; then
-      fail 18 "BID has # in it (${cfg_BID})"
+    if [[ -z $bid  ]] ; then
+      fail 17 "BID was never set"
+    elif [[ $bid =~ ^# ]] ; then
+      fail 18 "BID has # in it (${bid})"
     fi
   else
     fail 12 "More or less then one action set (count: ${action_count})"
   fi
 
+  cfg_BID="$bid"
+  cfg_action="$action"
+  return 0
 }
 
 function main() {
@@ -243,10 +260,9 @@ function main() {
   local cfg_UMASK=""
   local backup_command=""
 
-
   if (( $# == 0 )) ; then
     usage_short
-    fail 15 "missing parameters"
+    fail 19 "Command Line argument Missing"
   else
     user_input "$@"
   fi
@@ -255,18 +271,17 @@ function main() {
   #load_config "$cfg_BID" "$cfg_action" "$VALID_BACKUP_CONFIG"
   #load_prgm
 
-  echo $cfg_BID
-  echo $cfg_action
-  echo $cfg_Program
-  echo $cfg_Arguments
-  echo $cfg_Source
-  echo $cfg_Backup
-  echo $cfg_cd
-  echo $cfg_UMASK
+  echo "cfg_BID: $cfg_BID"
+  echo "cfg_action: $cfg_action"
+  echo "cfg_Program: $cfg_Program"
+  echo "cfg_Arguments: $cfg_Arguments"
+  echo "cfg_Source: $cfg_Source"
+  echo "cfg_Backup: $cfg_Backup"
+  echo "cfg_cd: $cfg_cd"
+  echo "cfg_UMASK:$cfg_UMASK"
   echo "backup_command: $backup_command"
+
   #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
-
-
   return 0
 }
 validate_config_file "$UID" "$GL_BACKUP_CONFIG"
