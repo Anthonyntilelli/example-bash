@@ -17,17 +17,6 @@ set -euo pipefail
 readonly GL_BACKUP_CONFIG="backup.config"
 readonly GL_PRMG_CONFIG="prgm.config"
 
-# Global(Gl) Variables
-Gl_cfg_BID=""
-declare -u Gl_cfg_Action=""
-Gl_cfg_Program=""
-Gl_cfg_Arguments=""
-Gl_cfg_Source=""
-Gl_cfg_Backup=""
-Gl_cfg_cd=""
-Gl_cfg_UMASK=""
-Gl_backup_command=""
-
 # FUNCTIONS
 function fail() {
   # Outputs error-message and force-quits script
@@ -36,28 +25,6 @@ function fail() {
   local -r ERROR_MESSAGE="$2"
   printf "ERROR %d: %s\\n" "$ERRORCODE" "$ERROR_MESSAGE" >&2
   exit "$ERRORCODE"
-}
-
-function print_globals() {
-  # File
-  printf "FILES USED\\n"
-  printf "GL_BACKUP_CONFIG: %s\\n" "$GL_BACKUP_CONFIG"
-  printf "GL_PRMG_CONFIG: %s\\n"   "$GL_PRMG_CONFIG"
-
-  # Configs
-  printf "Global Configs\\n"
-  printf "Gl_cfg_BID: %s\\n"       "$Gl_cfg_BID"
-  printf "Gl_cfg_Action: %s\\n"    "$Gl_cfg_Action"
-  printf "Gl_cfg_Program: %s\\n"   "$Gl_cfg_Program"
-  printf "Gl_cfg_Arguments: %s\\n" "$Gl_cfg_Arguments"
-  printf "Gl_cfg_Source: %s\\n"    "$Gl_cfg_Source"
-  printf "Gl_cfg_Backup: %s\\n"    "$Gl_cfg_Backup"
-  printf "Gl_cfg_cd: %s\\n"        "$Gl_cfg_cd"
-  printf "Gl_cfg_UMASK:%s\\n"      "$Gl_cfg_UMASK"
-
-  # Command
-  printf "Backup Command\\n"
-  printf "Gl_backup_command: %s\\n" "$Gl_backup_command"
 }
 
 function validate_config_file() {
@@ -137,6 +104,48 @@ function load_config() {
   #set -- $CONFIG_LINE
   #echo "$@# $#"
   return 0
+}
+
+function find_config() {
+  #Finds and processes config from given backup config file
+
+  local -r CFG_BID="$1" #assumes there are no #
+  local -r CFG_ACTION="$2"
+  local -r BACKUP_CONFIG="$3" #assumed validated
+
+  #Return Variables (expected set)
+  # - cfg_Program
+  # - cfg_Arguments
+  # - cfg_Source
+  # - cfg_Backup
+  # - cfg_cd
+  # - cfg_UMASK
+
+  #checking if variable exists (prevent non-variable creation in function)
+  local nothing
+  nothing=${cfg_Program?"cfg_Program is not set"}
+  nothing=${cfg_Arguments?"cfg_Arguments is not set"}
+  nothing=${cfg_Source?"cfg_Source is not set"}
+  nothing=${cfg_Backup?"cfg_Backup is not set"}
+  nothing=${cfg_cd? "cfg_cd is not set"}
+  nothing=${cfg_UMASK? "cfg_UMASK is not set"}
+
+  local -r CONFIG_LINE=$(grep "^$CFG_BID:.*$CFG_ACTION" "$BACKUP_CONFIG" | sed 's/\s*#.*//g')
+  #sed - removes comments from end of lines
+  local IFS=:
+  set -- $CONFIG_LINE
+  if (( ${#} == 7 )) || (( ${#} == 8 )) ; then
+    cfg_Program=$3
+    cfg_Arguments=$4
+    cfg_Source=$5
+    cfg_Backup=$6
+    cfg_cd=$7
+    cfg_UMASK=${8-""} #$8 may be unset, defaults to empty
+  elif ((${#} == 0)) ; then
+    fail 3 "No entries found for \"${CFG_BID}:${CFG_ACTION}\""
+  else
+    fail 4 "Entry \"${CONFIG_LINE}\" is incorrect or more then one line was found"
+  fi
 }
 
 function load_prgm() {
@@ -228,8 +237,18 @@ function main() {
 
   local cfg_BID=""
   local -u cfg_action=""
-  local -i action_count=0
+  local cfg_Program=""
+  local cfg_BID=""
+  local cfg_Action=""
+  local cfg_Program=""
+  local cfg_Arguments=""
+  local cfg_Source=""
+  local cfg_Backup=""
+  local cfg_cd=""
+  local cfg_UMASK=""
+  local backup_command=""
 
+  local -i action_count=0
   local -r VALID_BACKUP_CONFIG=$(validate_config_file "$UID" "$GL_BACKUP_CONFIG")
   local -r VALID_PRMG_CONFIG=$(validate_config_file "$UID" "$GL_PRMG_CONFIG")
 
@@ -268,10 +287,22 @@ function main() {
 
     Gl_cfg_BID="$cfg_BID" # tmp
     Gl_cfg_Action="$cfg_action" #tmp
-    load_config "$cfg_BID" "$cfg_action" "$VALID_BACKUP_CONFIG"
-    load_prgm
-    print_globals
-    #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+    echo "$cfg_BID $cfg_action"
+    find_config "$cfg_BID" "$cfg_action" "$VALID_BACKUP_CONFIG"
+    #load_config "$cfg_BID" "$cfg_action" "$VALID_BACKUP_CONFIG"
+    #load_prgm
+
+  echo $cfg_BID
+  echo $cfg_action
+  echo $cfg_Program
+  echo $cfg_Arguments
+  echo $cfg_Source
+  echo $cfg_Backup
+  echo $cfg_cd
+  echo $cfg_UMASK
+  echo "backup_command: $backup_command"
+
+  #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
 
   else
     fail 12 "More or less then one action set (count: ${action_count})"
