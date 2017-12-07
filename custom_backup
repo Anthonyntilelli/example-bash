@@ -106,7 +106,6 @@ function find_config() {
   fi
 }
 
-
 function find_prgm(){
   #Finds and processes config from given prgm config file
   local -r PROGRAM="$1"
@@ -151,31 +150,31 @@ function find_prgm(){
 function run_backup () { #TODO: not fully working as intented
   # Change directory and umask, if needed,  and runs backup
 
-  local -r BACKUP_COMMAND="${1}" #Command to run backup (required)
+  local -r BACKUP_COMMAND="$1" #Command to run backup (required)
   local -r WORKING_DIR="${2:-/}"
   #Directory to change to before running backup (default /)
   local -r SET_UMASK="${3:-SKIP}"
   #umask to set before running backup (default SKIP)
 
-  cd "${WORKING_DIR}"
-  case $SET_UMASK in #ensuring is a valid umask
+  cd "$WORKING_DIR"
+  case "$SET_UMASK" in #ensuring is a valid umask
     SKIP) ;; #DO-NOTHING
     [0-7] | [0-7][0-7] | [0-7][0-7][0-7] | [0-7][0-7][0-7][0-7] )
       umask "${SET_UMASK}"
       ;;
     *) fail 11  "umask is invalid (${SET_UMASK})" ;;
   esac
-  echo "$BACKUP_COMMAND" #PLACEHOLDER
-  #$BACKUP_COMMAND # ERROR:not expanding $HOME
-  #TODO HANDLE IF BACKUP COMMAND FAILES
+
+  $BACKUP_COMMAND
+  #program exits on backup failure
 }
 
 function usage_short() {
   #outputs usage
-  printf "%s -[ioRs]-[B=<BID>] [-D]\\n" "${0##*/}"
+  printf "%s -[ioRs]-[B <BID>]\\n" "${0##*/}"
 }
 
-usage() {
+function usage() {
   #OUTPUT
   #help information
 
@@ -226,7 +225,8 @@ function user_input() {
 
   shift $((OPTIND-1)) #remove process commad line options
   if (( ${#} != 0 )) ; then
-    fail 15 "Unknown remaining command line argument (args: ${@} )"
+     action="$*"
+    fail 15 "Unknown remaining command line argument (args: ${action} )"
   fi
 
   if (( action_count == 1 )) ; then
@@ -269,17 +269,7 @@ function main() {
 
   find_config "$cfg_BID" "$cfg_action" "$GL_BACKUP_CONFIG"
   find_prgm "$cfg_Program" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
-
-  echo "cfg_BID: $cfg_BID"
-  echo "cfg_action: $cfg_action"
-  echo "cfg_Program: $cfg_Program"
-  echo "cfg_Arguments: $cfg_Arguments"
-  echo "cfg_Source: $cfg_Source"
-  echo "cfg_Backup: $cfg_Backup"
-  echo "cfg_cd: $cfg_cd"
-  echo "cfg_UMASK:$cfg_UMASK"
-  echo "backup_command: $backup_command"
-  #run_backup "$Gl_backup_command" "$Gl_cfg_cd" "$Gl_cfg_UMASK"
+  run_backup "$backup_command" "$cfg_cd" "$cfg_UMASK"
   return 0
 }
 
