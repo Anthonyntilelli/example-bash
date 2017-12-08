@@ -5,7 +5,6 @@
 #: Author      : Anthony Tilelli
 #: Version     : .01
 #: Description : Runs backups defined in configuration file
-#: Options     : PENDING
 ################################################################################
 
 # strict mode (http://redsymbol.net/articles/unofficial-bash-strict-mode/)
@@ -20,7 +19,7 @@ function fail() {
   # Outputs error-message and force-quits script
 
   local -r ERRORCODE="$1"
-  local -r ERROR_MESSAGE="$2"
+  local -r ERROR_MESSAGE="${2:-"ERROR_MESSAGE not set"}"
   printf "ERROR %d: %s\\n" "$ERRORCODE" "$ERROR_MESSAGE" >&2
   exit "$ERRORCODE"
 }
@@ -43,21 +42,24 @@ function validate_config_file() {
   if [[ -r "$CONFIG" ]]; then
     #Is file ASCII text?
     if [[ "$(file "$CONFIG")" =~ ": ASCII text" ]] ; then
-      config_user=$(stat -c %u "$CONFIG")
       #If file owned by root or USERID
+      config_user=$(stat -c %u "$CONFIG")
       if (( config_user == 0 )) || (( config_user == "$USERID" )) ; then
         #writable by owner only??
         if [[ "$(stat -c %A "$CONFIG")" != -r???--?-- ]]; then
-          fail 10 "Wrong permissions on file: $CONFIG.(Is file write/executable by group/other?)"
+          fail 10 \
+          "Wrong permissions on file: $CONFIG.(Is file write/executable by group/other?)"
         fi
       else
-        fail 9 "\"$CONFIG\" is not owned by root or $USERID (File owner: $config_user)"
+        fail 9 \
+        "\"$CONFIG\" is not owned by root or $USERID (File owner: $config_user)"
       fi
     else
       fail 8 "File \"$CONFIG\" is not ASCII text type"
     fi
   else
-    fail 7 "Unable to use file: \"$CONFIG\". (Does files exist and is it readable?)"
+    fail 7 \
+    "Unable to use file: \"$CONFIG\". (Does files exist and is it readable?)"
   fi
   return 0
 }
@@ -100,8 +102,10 @@ function find_config() {
   elif ((${#} == 0)) ; then
     fail 3 "No entries found for \"${BID}:${ACTION}\""
   else
-    fail 4 "Entry \"${CONFIG_LINE}\" is incorrect or more then one line was found"
+    fail 4 \
+    "Entry \"${CONFIG_LINE}\" is incorrect or more then one line was found"
   fi
+  return 0
 }
 
 function find_prgm(){
@@ -125,23 +129,25 @@ function find_prgm(){
 
   if (( NUM_OF_ENTRIES == 1 )); then
     local IFS=:
+    # word splitting intended
     set -- $CONFIG_LINE
     shift 2 #removing program and Action
 
     backup_command="${PROGRAM} "
     while (( $# > 0  )) ; do
       case "${1}" in
-        "arguments")  backup_command+="${ARGUMENTS} "   ;;
-        "source")     backup_command+="${SOURCE} "  ;;
-        "backup")     backup_command+="${BACKUP} "  ;;
-        *)            fail 6 "${1} is unknown" ;;
+        "arguments")  backup_command+="${ARGUMENTS} " ;;
+        "source")     backup_command+="${SOURCE} "    ;;
+        "backup")     backup_command+="${BACKUP} "    ;;
+        *)            fail 6 "${1} is unknown"        ;;
       esac
       shift
     done
     #remove end space
     backup_command=${backup_command% }
   else
-    fail 5 "${NUM_OF_ENTRIES} entries found in ${PRMG_CONFIG_FILE} for \"${PROGRAM}:${ACTION}\""
+    fail 5 \
+    "${NUM_OF_ENTRIES} entries found in ${PRMG_CONFIG_FILE} for \"${PROGRAM}:${ACTION}\""
   fi
 }
 
@@ -247,7 +253,6 @@ function main() {
   # - GL_BACKUP_CONFIG
   # - GL_PRMG_CONFIG
 
-
   local cfg_BID=""
   local -u cfg_action=""
   local cfg_Program=""
@@ -268,10 +273,9 @@ function main() {
   find_config "$cfg_BID" "$cfg_action" "$GL_BACKUP_CONFIG"
   find_prgm "$cfg_Program" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
   run_backup "$backup_command" "$cfg_cd" "$cfg_UMASK"
-  return 0
 }
 
 validate_config_file "$UID" "$GL_BACKUP_CONFIG"
 validate_config_file "$UID" "$GL_PRMG_CONFIG"
 main "$@"
-exit 99
+exit 0
