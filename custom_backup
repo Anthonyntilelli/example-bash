@@ -10,8 +10,6 @@
 
 # strict mode (http://redsymbol.net/articles/unofficial-bash-strict-mode/)
 set -euo pipefail
-#readonly ORIGINAL_IFS="$IFS"
-#IFS=$'\n\t'
 
 # CONSTANTS
 readonly GL_BACKUP_CONFIG="backup.config"
@@ -79,7 +77,7 @@ function find_config() {
   # - cfg_cd
   # - cfg_UMASK
 
-  #checking if variable exists (prevent nonlocal variable creation in function)
+  #checking if variable exists (prevent non-local variable creation in function)
   local assert
   assert=${cfg_Program?"cfg_Program is not set"}
   assert=${cfg_Arguments?"cfg_Arguments is not set"}
@@ -118,7 +116,7 @@ function find_prgm(){
   #Return Variables (expected set)
   # - backup_command
 
-  #checking if variable exists (prevent nonlocal variable creation in function)
+  #checking if variable exists (prevent non-local variable creation in function)
   local assert=${backup_command?"backup_command is not set"}
 
   local -r CONFIG_LINE=$(grep "^$PROGRAM:.*$ACTION" "$PRMG_CONFIG_FILE" | sed 's/\s*#.*//g')
@@ -134,8 +132,8 @@ function find_prgm(){
     while (( $# > 0  )) ; do
       case "${1}" in
         "arguments")  backup_command+="${ARGUMENTS} "   ;;
-        "source")     backup_command+="\"${SOURCE}\" "  ;;
-        "backup")     backup_command+="\"${BACKUP}\" "  ;;
+        "source")     backup_command+="${SOURCE} "  ;;
+        "backup")     backup_command+="${BACKUP} "  ;;
         *)            fail 6 "${1} is unknown" ;;
       esac
       shift
@@ -147,7 +145,7 @@ function find_prgm(){
   fi
 }
 
-function run_backup () { #TODO: not fully working as intented
+function run_backup () {
   # Change directory and umask, if needed,  and runs backup
 
   local -r BACKUP_COMMAND="$1" #Command to run backup (required)
@@ -156,7 +154,7 @@ function run_backup () { #TODO: not fully working as intented
   local -r SET_UMASK="${3:-SKIP}"
   #umask to set before running backup (default SKIP)
 
-  cd "$WORKING_DIR"
+  cd "$WORKING_DIR" || fail 20 "Could not cd to directory ${WORKING_DIR}"
   case "$SET_UMASK" in #ensuring is a valid umask
     SKIP) ;; #DO-NOTHING
     [0-7] | [0-7][0-7] | [0-7][0-7][0-7] | [0-7][0-7][0-7][0-7] )
@@ -166,7 +164,7 @@ function run_backup () { #TODO: not fully working as intented
   esac
 
   $BACKUP_COMMAND
-  #program exits on backup failure
+  #script will terminate on program failure
 }
 
 function usage_short() {
