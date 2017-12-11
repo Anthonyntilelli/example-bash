@@ -12,7 +12,27 @@
 
 ## Parameters:               <a name="Parameters"></a>
 
+  bash_backup -[ioRs]-[B <BID>]
+
+
+    Action Parameters (choose one)
+    -i  Run INITIAL Action
+    -o  Run ONGOING Action
+    -R  Run RESTORE Action
+    -s  Run SHOW    Action
+    -h  Prints help message and exits
+    Backup ID
+    -B  sets backup ID
+
 ## Examples:                 <a name="Examples"></a>
+
+`bash_backup -i -B tar_local`
+
+`bash_backup -s -B tar_local`
+
+`bash_backup -o -B tar_local`
+
+`bash_backup -R -B tar_local`
 
 ## Exit status:              <a name="Exit_status"></a>
 
@@ -51,7 +71,7 @@
 #### backup entry
 `<BID>:<Action>:<Program>:<Arguments>:<Source>:<Backup>:<cd>:<UMASK>`
 
-#### backup fields (examples in `backup.config`)
+#### backup fields (examples in `example_config/backup.config`)
  - BID - Name of Backup used to identify, when script is called
  - Action - Name of supported backup action (INITIAL,ONGOING,SHOW,RESTORE).
    Add multiple actions together separated by `,`
@@ -63,7 +83,7 @@
  - cd - Absolute path to change directory before running backup (Default is /)
  - Umask - Set umask before running program (Default is not to change umask)
 
-#### Program entry (examples in `prgm.config`)
+#### Program entry (examples in `example_config/prgm.config`)
  All entries begin with `<program>:<action>` rearrange the other fields to make
  program work on command line or omit it
 

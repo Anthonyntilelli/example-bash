@@ -11,8 +11,8 @@
 set -euo pipefail
 
 # CONSTANTS
-readonly GL_BACKUP_CONFIG="backup.config"
-readonly GL_PRMG_CONFIG="prgm.config"
+readonly GL_BACKUP_CONFIG="example_config/backup.config"
+readonly GL_PRMG_CONFIG="example_config/prgm.config"
 
 # FUNCTIONS
 function fail() {

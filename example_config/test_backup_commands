@@ -1,3 +1,4 @@
+# Backup commands used to test bash_backup
 tar:
 - INITIAL : tar cPf "$HOME/Example_backup" "$HOME/important_files/"
 - ONGOING : tar uPf "$HOME/Example_backup" "$HOME/important_files/"
