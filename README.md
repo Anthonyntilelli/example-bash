@@ -39,13 +39,42 @@
     20 Could not cd to directory $WORKING_DIR
 
 ## Configuration files:      <a name="Configuration_files"></a>
-Files must be ASCII text, owned by script user or root and only writable by owner
+ - Files must be ASCII text, owned by script user or root and only writable by owner
+ - Lines starting with '#' are comments
+ - Backup and program entries are stored in separate files
+ - `GL_BACKUP_CONFIG` determines backup file
+ - `GL_PRMG_CONFIG` determines the program file
+ -  entries are separated by a new line
+ -  Fields in an entry are delimited by a ':'
+ -  Fields are case sensitive
+ -  Any entry with a default can be omitted.
 
- - back.config - backup entry lists
- - prgm.config - program usage configuration
+#### backup entry
+`<BID>:<Action>:<Program>:<Arguments>:<Source>:<Backup>:<cd>:<UMASK>`
 
+#### backup fields (examples in `backup.config` )
+ - BID - Name of Backup used to identify, when script is called
+ - Action - Name of supported backup action (INITIAL,ONGOING,SHOW,RESTORE).
+   Add multiple actions together separated by `,`
+ - Program - program used for backup. Must be a program in prgm.config
+ - Arguments - list of Arguments to be passed to program. (Default is blank)
+ - Source - Path to source of backups. Can be directory or file_name
+   (Default is blank)
+ - Backup -  Path to backup. Can be directory or file_name (Default is blank)
+ - cd - Absolute path to change directory before running backup (Default is /)
+ - Umask - Set umask before running program (Default is not to change umask)
 
+#### Program entry (eamples in `prgm.config` )
+ All entries begin with `<program>:<action>` rearrange the other fields to make
+ program work on command line or omit it
 
+#### Program fields
+ - program - program used for backup.
+ - action  -  Name of supported backup action (INITIAL,ONGOING,SHOW,RESTORE)
+          add multiple actions together separated by `,`
+ - arguments -  list of Arguments to be passed to program.
+ - source - Path to source of backups. Can be directory or file_name
+ - backup - Path to backup. Can be directory or file_name
 
 ## Configuration functions:  <a name="Configuration_functions"></a>
 
