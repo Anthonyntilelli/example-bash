@@ -18,8 +18,8 @@ readonly GL_PRMG_CONFIG="example_config/prgm.config"
 function fail() {
   # Outputs error-message and force-quits script
 
-  local -r ERRORCODE="$1"
-  local -r ERROR_MESSAGE="${2:-"ERROR_MESSAGE not set"}"
+  local -r ERRORCODE="${1:-1}"
+  local -r ERROR_MESSAGE="${2:-"fail called but \"ERROR_MESSAGE\" not set"}"
   printf "ERROR %d: %s\\n" "$ERRORCODE" "$ERROR_MESSAGE" >&2
   exit "$ERRORCODE"
 }

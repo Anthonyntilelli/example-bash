@@ -1,14 +1,11 @@
 # bash_backup - configurable backup wrapper
 
 ## Table of Contents
-1. [Overview](#Overview)
-2. [Parameters](#Parameters)
+1. [Parameters](#Parameters)
 3. [Examples](#Examples)
 4. [Exit status](#Exit_status)
 5. [Configuration files](#Configuration_files)
 6. [Authors](#Authors)
-
-## Overview:                 <a name="Overview"></a>
 
 ## Parameters:               <a name="Parameters"></a>
 
