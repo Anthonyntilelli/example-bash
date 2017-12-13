@@ -53,6 +53,7 @@
     18 BID has # in it ($cfg_BID)"
     19 Command Line argument Missing
     20 Could not cd to directory $WORKING_DIR
+    21 Bash-4.0+ is required to run this script
 
 ## Configuration files:      <a name="Configuration_files"></a>
  - Files must be ASCII text, owned by script user or root and only writable by owner

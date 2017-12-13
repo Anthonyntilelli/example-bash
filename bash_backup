@@ -41,7 +41,7 @@ function validate_config_file() {
   #Validates config files is readable by script user
   if [[ -r "$CONFIG" ]]; then
     #Is file ASCII text?
-    if [[ "$(file "$CONFIG")" =~ ": ASCII text" ]] ; then
+    if [[ "$(file "$CONFIG")" =~ "ASCII" ]] ; then
       #If file owned by root or USERID
       config_user=$(stat -c %u "$CONFIG")
       if (( config_user == 0 )) || (( config_user == "$USERID" )) ; then
@@ -274,6 +274,11 @@ function main() {
   find_prgm "$cfg_Program" "$cfg_action" "$cfg_Arguments" "$cfg_Source" "$cfg_Backup" "$GL_PRMG_CONFIG"
   run_backup "$backup_command" "$cfg_cd" "$cfg_UMASK"
 }
+
+if ((BASH_VERSINFO[0] > 4))
+then
+  fail 21 "Bash-4.0+ is required to run this script"
+fi
 
 validate_config_file "$UID" "$GL_BACKUP_CONFIG"
 validate_config_file "$UID" "$GL_PRMG_CONFIG"
