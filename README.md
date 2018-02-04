@@ -1,12 +1,21 @@
 # bash_backup - configurable backup wrapper
 
 ## Table of Contents
-1. [Parameters](#Parameters)
+1. [Description](#Description)
+2. [Parameters](#Parameters)
 3. [Examples](#Examples)
 4. [Exit status](#Exit_status)
 5. [Configuration files](#Configuration_files)
 6. [Authors](#Authors)
 
+## Description                <a name= "Description"></a>
+
+  Bash wapper for backing up Linux machine with bash version 4.0+. This program will run user provided backup configuration when           called. It uses 2 global constants `GL_BACKUP_CONFIG` and `GL_PRMG_CONFIG` to choose the configuation files. They are set to the         example file for demonstration purposes.  
+  
+  _Please note_, this script was written for bash learning and experimentation. There are likely better and simpler solutions available. 
+
+
+  
 ## Parameters:               <a name="Parameters"></a>
 
   bash_backup -[ioRs]-[B <BID>]
