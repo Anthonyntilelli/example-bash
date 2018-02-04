@@ -3,7 +3,7 @@
 #: Title       : bash_backup
 #: Date        : 2017-Nov-30
 #: Author      : Anthony Tilelli
-#: Version     : .1
+#: Version     : 1
 #: Description : Runs backups defined in configuration file
 ################################################################################
 
