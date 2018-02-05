@@ -10,7 +10,7 @@
 
 ## Description                <a name= "Description"></a>
 
-  Bash wapper for backing up Linux machine with bash version 4.0+. This program will run user provided backup configuration when           called. It uses 2 global constants `GL_BACKUP_CONFIG` and `GL_PRMG_CONFIG` to choose the configuation files. They are set to the         example file for demonstration purposes.  
+  Bash wrapper for backing up Linux machine with bash version 4.0+. This program will run user provided backup configuration when         called. It uses 2 global constants `GL_BACKUP_CONFIG` and `GL_PRMG_CONFIG` to choose the configuration files. They are set to the         example file for demonstration purposes.  
   
   _Please note_, this script was written for bash learning and experimentation. There are likely better and simpler solutions available. 
 
